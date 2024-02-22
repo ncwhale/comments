@@ -1,14 +1,15 @@
 package im.koa.web.comments
 
 import io.vertx.core.AbstractVerticle
+import io.vertx.core.http.HttpServer
 import io.vertx.core.Promise
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.*
 
 class MainVerticle : AbstractVerticle() {
+  lateinit var server : HttpServer
 
   override fun start(startPromise: Promise<Void>) {
-
     // Create a Router
     val router = Router.router(vertx)
 
@@ -31,9 +32,9 @@ class MainVerticle : AbstractVerticle() {
       )
     }
 
-    vertx
-        .createHttpServer()
-        .requestHandler(router)
+    server = vertx
+      .createHttpServer()
+      .requestHandler(router)
         // .requestHandler { req ->
         //   req.response().putHeader("content-type", "text/plain").end("Hello from Vert.x!")
         // }
@@ -45,5 +46,11 @@ class MainVerticle : AbstractVerticle() {
             startPromise.fail(http.cause())
           }
         }
+  }
+
+  override fun stop(stopPromise: Promise<Void>) {
+    println("HTTP server stopped")
+    server.close()
+    stopPromise.complete()
   }
 }
