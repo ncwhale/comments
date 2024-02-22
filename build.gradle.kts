@@ -38,6 +38,7 @@ dependencies {
   implementation("io.vertx:vertx-config:4.5.3")
   implementation(kotlin("stdlib-jdk8"))
   implementation("com.ongres.scram:client:2.1")
+  runtimeOnly("org.webjars.npm:htmx.org:1.9.10")
   testImplementation("io.vertx:vertx-unit")
   testImplementation("junit:junit:4.13.2")
 }
