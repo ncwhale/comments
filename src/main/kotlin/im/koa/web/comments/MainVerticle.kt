@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
 import io.vertx.core.Promise
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.*
 import io.vertx.kotlin.core.json.*
 
 class MainVerticle : AbstractVerticle() {
@@ -13,23 +14,25 @@ class MainVerticle : AbstractVerticle() {
     // Create a Router
     val router = Router.router(vertx)
 
-    // Mount the handler for all incoming requests at every path and HTTP method
+    // Serve webjars as lib
+    router.get("/lib/*").handler(StaticHandler.create("META-INF/resources/webjars"))
+
+    // Serve static files
+    router.get("/static/*").handler(StaticHandler.create(FileSystemAccess.RELATIVE, "static"))
+
+    // Handler for all missing routes
     router.route().handler { context ->
       // Get the address of the request
       val address = context.request().connection().remoteAddress().toString()
+      val method = context.request().method().toString()
+      val path = context.request().path()
+      println("Unhandled $method $path @$address")
       // Get the query parameter "name"
-      val queryParams = context.queryParams()
-      val name = queryParams.get("name") ?: "unknown"
+      // val queryParams = context.queryParams()
+      // val name = queryParams.get("name") ?: "unknown"
       // Write a json response
-      context.json(
-          json {
-            obj(
-                "name" to name,
-                "address" to address,
-                "message" to "Hello $name connected from $address"
-            )
-          }
-      )
+      context.response().headers().add("content-type", "text/plain")
+      context.response().end("")
     }
 
     server = vertx
