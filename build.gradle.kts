@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   kotlin ("jvm") version "1.9.22"
   application
-  id("com.github.johnrengelman.shadow") version "7.1.2"
+  id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "im.koa.web"
@@ -35,6 +35,7 @@ dependencies {
   implementation("io.vertx:vertx-pg-client")
   implementation("io.vertx:vertx-lang-kotlin-coroutines")
   implementation("io.vertx:vertx-lang-kotlin")
+  implementation("io.vertx:vertx-config:4.5.3")
   implementation(kotlin("stdlib-jdk8"))
   implementation("com.ongres.scram:client:2.1")
   testImplementation("io.vertx:vertx-unit")
