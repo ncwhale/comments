@@ -63,3 +63,12 @@ tasks.withType<Test> {
 tasks.withType<JavaExec> {
   args = listOf("run", mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$launcherClassName", "--on-redeploy=$doOnChange")
 }
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.suppressWarnings = true
+    kotlinOptions.jvmTarget = "21"
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {
+    jvmTargetValidationMode.set(org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode.WARNING)
+}
