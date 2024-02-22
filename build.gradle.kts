@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin ("jvm") version "1.7.21"
+  kotlin ("jvm") version "1.9.22"
   application
   id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -42,7 +42,7 @@ dependencies {
 }
 
 val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "17"
+compileKotlin.kotlinOptions.jvmTarget = "21"
 
 tasks.withType<ShadowJar> {
   archiveClassifier.set("fat")
