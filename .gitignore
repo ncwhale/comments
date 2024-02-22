@@ -197,6 +197,7 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+build/
 
 ### VisualStudioCode ###
 .vscode/*
