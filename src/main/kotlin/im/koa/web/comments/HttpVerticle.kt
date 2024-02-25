@@ -29,9 +29,8 @@ class HttpVerticle : CoroutineVerticle() {
       context.response().setStatusCode(204).putHeader("content-type", "text/plain").end()
     }
 
-    val host: String =
-        JsonPointer.from("/http/host").queryJsonOrDefault(config, "localhost") as String
-    val port: Int = JsonPointer.from("/http/port").queryJsonOrDefault(config, 8888) as Int
+    val host = JsonPointer.from("/http/host").queryJsonOrDefault(config, "localhost") as String
+    val port = JsonPointer.from("/http/port").queryJsonOrDefault(config, 8888) as Int
 
     logger.debug("HTTP Config: host:$host port:$port")
 
