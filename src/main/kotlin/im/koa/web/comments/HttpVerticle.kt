@@ -1,5 +1,6 @@
 package im.koa.web.comments
 
+import io.vertx.core.json.pointer.JsonPointer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.kotlin.coroutines.*
@@ -28,12 +29,13 @@ class HttpVerticle : CoroutineVerticle() {
       context.response().setStatusCode(204).putHeader("content-type", "text/plain").end()
     }
 
-    val httpServer =
-        vertx
-            .createHttpServer()
-            .requestHandler(router)
-            .listen(config.getInteger("http.port", 8888))
-            .coAwait()
+    val host: String =
+        JsonPointer.from("/http/host").queryJsonOrDefault(config, "localhost") as String
+    val port: Int = JsonPointer.from("/http/port").queryJsonOrDefault(config, 8888) as Int
+
+    logger.debug("HTTP Config: host:$host port:$port")
+
+    val httpServer = vertx.createHttpServer().requestHandler(router).listen(port, host).coAwait()
     logger.info("HTTP server started on port ${httpServer.actualPort()}")
   }
 
