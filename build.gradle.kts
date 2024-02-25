@@ -35,12 +35,17 @@ dependencies {
   implementation("io.vertx:vertx-pg-client")
   implementation("io.vertx:vertx-lang-kotlin-coroutines")
   implementation("io.vertx:vertx-lang-kotlin")
-  implementation("io.vertx:vertx-config:4.5.3")
+  implementation("io.vertx:vertx-config")
   implementation(kotlin("stdlib-jdk8"))
   implementation("com.ongres.scram:client:2.1")
+  // Webjar for packed static js
   runtimeOnly("org.webjars.npm:htmx.org:1.9.10")
   testImplementation("io.vertx:vertx-unit")
   testImplementation("junit:junit:4.13.2")
+  // Logging system
+  implementation("org.slf4j:slf4j-api:2.0.12")
+  implementation("ch.qos.logback:logback-core:1.4.14")
+  implementation("ch.qos.logback:logback-classic:1.4.14")
 }
 
 val compileKotlin: KotlinCompile by tasks
