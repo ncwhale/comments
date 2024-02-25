@@ -1,44 +1,58 @@
 package im.koa.web.comments
 
 import io.vertx.config.*
-import io.vertx.core.AbstractVerticle
-import io.vertx.core.Promise
-import io.vertx.core.http.HttpServer
-import io.vertx.core.json.JsonObject
+import io.vertx.core.*
+import io.vertx.core.json.*
+import io.vertx.kotlin.coroutines.*
 import org.slf4j.LoggerFactory
 
-class MainVerticle : AbstractVerticle() {
-  lateinit var server: HttpServer
+class MainVerticle : CoroutineVerticle() {
   val logger = LoggerFactory.getLogger(MainVerticle::class.java)
 
-  override fun start(startPromise: Promise<Void>) {
-    // Config
-    val fileStore =
+  override suspend fun start() {
+    // MainVerticle will kickstart with Config
+    val dirStore =
         ConfigStoreOptions()
-            .setType("file")
-            .setOptional(true)
-            .setFormat("json")
-            .setConfig(JsonObject().put("path", "comments-config.json"))
+            .setType("directory")
+            .setConfig(
+                JsonObject()
+                    .put("path", "config")
+                    .put(
+                        "filesets",
+                        JsonArray()
+                            .add(JsonObject().put("pattern", "*.json"))
+                            .add(
+                                JsonObject()
+                                    .put("pattern", "*.properties")
+                                    .put("format", "properties")
+                            )
+                    )
+            )
 
-    val envStore = ConfigStoreOptions().setType("env").setConfig(JsonObject().put("raw-data", true))
+    val envStore =
+        ConfigStoreOptions().setType("env").setConfig(JsonObject().put("raw-data", false))
 
     val sysPropsStore =
         ConfigStoreOptions().setType("sys").setConfig(JsonObject().put("hierarchical", true))
 
     val options =
-        ConfigRetrieverOptions().addStore(fileStore).addStore(envStore).addStore(sysPropsStore)
+        ConfigRetrieverOptions().addStore(dirStore).addStore(envStore).addStore(sysPropsStore)
     val retriever = ConfigRetriever.create(vertx, options)
 
-    retriever.getConfig().onComplete { ar ->
-      if (ar.failed()) {
-        // Failed to retrieve the configuration
-        logger.error("Failed to retrieve the configuration", ar.cause())
-      } else {
-        val config = ar.result()
-        logger.info("Configuration: $config")
+    val config = retriever.getConfig().coAwait()
+    // logger.debug("Config: $config")
 
-        // Recreate vertx with config?
-      }
+    // Deploy verticles
+    vertx.deployVerticle(HttpVerticle::class.java.name, DeploymentOptions().setConfig(config))
+
+    // Emit config change events
+    retriever.listen { change ->
+      // Previous configuration
+      // val previous = change.getPreviousConfiguration()
+      // New configuration
+      val conf = change.getNewConfiguration()
+
+      vertx.eventBus().publish("config.change", conf)
     }
   }
 }
