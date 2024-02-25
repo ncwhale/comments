@@ -1,0 +1,19 @@
+<configuration>
+
+  <!-- 標準出力用設定 -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <!-- ルートロガー -->
+  <!-- DEBUG, INFO, WARN, ERROR レベルのログを出力 -->
+  <root level="DEBUG">
+    <!-- 全てのロガーのメッセージを定義した BAR-STDOUT アペンダーに出力 -->
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>

@@ -1,14 +1,16 @@
 package im.koa.web.comments
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.http.HttpServer
 import io.vertx.core.Promise
+import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.*
 import io.vertx.kotlin.core.json.*
+import org.slf4j.LoggerFactory
 
 class MainVerticle : AbstractVerticle() {
-  lateinit var server : HttpServer
+  lateinit var server: HttpServer
+  val logger = LoggerFactory.getLogger(MainVerticle::class.java)
 
   override fun start(startPromise: Promise<Void>) {
     // Create a Router
@@ -20,35 +22,31 @@ class MainVerticle : AbstractVerticle() {
     // Serve static files
     router.get("/static/*").handler(StaticHandler.create(FileSystemAccess.RELATIVE, "static"))
 
-    // Handler for all missing routes
+    // Handler for all missing request routes
     router.route().handler { context ->
       // Get the address of the request
-      val address = context.request().connection().remoteAddress().toString()
-      val method = context.request().method().toString()
-      val path = context.request().path()
-      println("Unhandled $method $path @$address")
-      // Get the query parameter "name"
-      // val queryParams = context.queryParams()
-      // val name = queryParams.get("name") ?: "unknown"
-      // Write a json response
-      context.response().headers().add("content-type", "text/plain")
-      context.response().end("")
+      val request = context.request()
+      val address = request.connection().remoteAddress().toString()
+      val method = request.method().toString()
+      val path = request.path()
+      logger.info("Unhandled $method $path @$address")
+
+      // Write an empty string response
+      context.response().setStatusCode(204).putHeader("content-type", "text/plain").end()
     }
 
-    server = vertx
-      .createHttpServer()
-      .requestHandler(router)
-        // .requestHandler { req ->
-        //   req.response().putHeader("content-type", "text/plain").end("Hello from Vert.x!")
-        // }
-        .listen(8888) { http ->
-          if (http.succeeded()) {
-            startPromise.complete()
-            println("HTTP server started on port 8888")
-          } else {
-            startPromise.fail(http.cause())
-          }
-        }
+    server =
+        vertx
+            .createHttpServer()
+            .requestHandler(router)
+            .listen(8888) { http ->
+              if (http.succeeded()) {
+                startPromise.complete()
+                println("HTTP server started on port 8888")
+              } else {
+                startPromise.fail(http.cause())
+              }
+            }
   }
 
   override fun stop(stopPromise: Promise<Void>) {
