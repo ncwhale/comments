@@ -1,11 +1,10 @@
 package im.koa.web.comments
 
+import io.vertx.config.*
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
-import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.*
-import io.vertx.kotlin.core.json.*
+import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
 class MainVerticle : AbstractVerticle() {
@@ -13,45 +12,33 @@ class MainVerticle : AbstractVerticle() {
   val logger = LoggerFactory.getLogger(MainVerticle::class.java)
 
   override fun start(startPromise: Promise<Void>) {
-    // Create a Router
-    val router = Router.router(vertx)
+    // Config
+    val fileStore =
+        ConfigStoreOptions()
+            .setType("file")
+            .setOptional(true)
+            .setFormat("json")
+            .setConfig(JsonObject().put("path", "comments-config.json"))
 
-    // Serve webjars as lib
-    router.get("/lib/*").handler(StaticHandler.create("META-INF/resources/webjars"))
+    val envStore = ConfigStoreOptions().setType("env").setConfig(JsonObject().put("raw-data", true))
 
-    // Serve static files
-    router.get("/static/*").handler(StaticHandler.create(FileSystemAccess.RELATIVE, "static"))
+    val sysPropsStore =
+        ConfigStoreOptions().setType("sys").setConfig(JsonObject().put("hierarchical", true))
 
-    // Handler for all missing request routes
-    router.route().handler { context ->
-      // Get the address of the request
-      val request = context.request()
-      val address = request.connection().remoteAddress().toString()
-      val method = request.method().toString()
-      val path = request.path()
-      logger.info("Unhandled $method $path @$address")
+    val options =
+        ConfigRetrieverOptions().addStore(fileStore).addStore(envStore).addStore(sysPropsStore)
+    val retriever = ConfigRetriever.create(vertx, options)
 
-      // Write an empty string response
-      context.response().setStatusCode(204).putHeader("content-type", "text/plain").end()
+    retriever.getConfig().onComplete { ar ->
+      if (ar.failed()) {
+        // Failed to retrieve the configuration
+        logger.error("Failed to retrieve the configuration", ar.cause())
+      } else {
+        val config = ar.result()
+        logger.info("Configuration: $config")
+
+        // Recreate vertx with config?
+      }
     }
-
-    server =
-        vertx
-            .createHttpServer()
-            .requestHandler(router)
-            .listen(8888) { http ->
-              if (http.succeeded()) {
-                startPromise.complete()
-                println("HTTP server started on port 8888")
-              } else {
-                startPromise.fail(http.cause())
-              }
-            }
-  }
-
-  override fun stop(stopPromise: Promise<Void>) {
-    println("HTTP server stopped")
-    server.close()
-    stopPromise.complete()
   }
 }
