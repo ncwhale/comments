@@ -7,7 +7,7 @@ import io.vertx.kotlin.coroutines.*
 import org.slf4j.LoggerFactory
 
 class HttpVerticle : CoroutineVerticle() {
-  val logger = LoggerFactory.getLogger(MainVerticle::class.java)
+  val logger = LoggerFactory.getLogger(HttpVerticle::class.java)
 
   override suspend fun start() {
     // Create a Router
