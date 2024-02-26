@@ -7,6 +7,7 @@ import io.vertx.kotlin.coroutines.*
 import org.slf4j.LoggerFactory
 
 class MainVerticle : CoroutineVerticle() {
+  // MainVerticle will read config and init other verticles
   val logger = LoggerFactory.getLogger(MainVerticle::class.java)
 
   override suspend fun start() {
@@ -43,6 +44,7 @@ class MainVerticle : CoroutineVerticle() {
     // logger.debug("Config: $config")
 
     // Deploy verticles
+    logger.debug("Deploying verticles...")
     vertx.deployVerticle(HttpVerticle::class.java.name, DeploymentOptions().setConfig(config))
 
     // Emit config change events
@@ -51,7 +53,7 @@ class MainVerticle : CoroutineVerticle() {
       // val previous = change.getPreviousConfiguration()
       // New configuration
       val conf = change.getNewConfiguration()
-
+      logger.debug("Config change: $conf")
       vertx.eventBus().publish("config.change", conf)
     }
   }
