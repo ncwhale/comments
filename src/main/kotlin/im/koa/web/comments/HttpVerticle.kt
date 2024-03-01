@@ -5,8 +5,10 @@ import io.vertx.core.json.pointer.JsonPointer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.CorsHandler
 import io.vertx.ext.web.handler.StaticHandler
+import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.kotlin.coroutines.*
 import org.slf4j.LoggerFactory
+import io.vertx.ext.web.templ.pug.PugTemplateEngine
 
 class HttpVerticle : CoroutineVerticle() {
   val logger = LoggerFactory.getLogger(HttpVerticle::class.java)
@@ -16,7 +18,37 @@ class HttpVerticle : CoroutineVerticle() {
     val router = Router.router(vertx)
 
     // CORS handler, we need support HTMX headers
-    val corsHandler = CorsHandler.create()
+    val corsHandler =
+        CorsHandler.create()
+            // HTMX Request Headers
+            .allowedHeaders(
+                setOf(
+                    "HX-Boosted",
+                    "HX-Current-URL",
+                    "HX-History-Restore-Request",
+                    "HX-Prompt",
+                    "HX-Request",
+                    "HX-Target",
+                    "HX-Trigger-Name",
+                    "HX-Trigger",
+                )
+            )
+            // HTMX Response Headers
+            .exposedHeaders(
+                setOf(
+                    "HX-Location",
+                    "HX-Push-Url",
+                    "HX-Redirect",
+                    "HX-Refresh",
+                    "HX-Replace-Url",
+                    "HX-Reswap",
+                    "HX-Retarget",
+                    "HX-Reselect",
+                    "HX-Trigger",
+                    "HX-Trigger-After-Settle",
+                    "HX-Trigger-After-Swap",
+                )
+            )
 
     try {
       val origins = JsonPointer.from("/http/cors/origins").queryJson(config) as JsonArray
@@ -29,6 +61,12 @@ class HttpVerticle : CoroutineVerticle() {
     } catch (e: Exception) {
       logger.warn("Invalid CORS origins config, skipped")
     }
+
+    val pugEngine = PugTemplateEngine.create(vertx)
+    val pugHandler = TemplateHandler.create(pugEngine)
+
+    // router.get("/pug/*").handler(pugHandler)
+    router.getWithRegex(".+\\.pug").handler(pugHandler)
 
     // Serve webjars as lib
     router.get("/lib/*").handler(StaticHandler.create("META-INF/resources/webjars"))
