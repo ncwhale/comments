@@ -1,0 +1,8 @@
+doctype html
+html
+ head
+   title Test
+   script(defer src="lib/htmx.org/1.9.10/dist/htmx.min.js")
+ body
+  p Nothing.
+  div(hx-get="comment/input.pug" hx-trigger="revealed")
