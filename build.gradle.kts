@@ -21,7 +21,7 @@ val junitJupiterVersion = "5.9.1"
 val mainVerticleName = "im.koa.web.comments.MainVerticle"
 val launcherClassName = "io.vertx.core.Launcher"
 
-val watchForChange = "src/**/*"
+val watchForChange = "src/**/*,config/*"
 val doOnChange = "${projectDir}/gradlew classes"
 
 application {
@@ -32,6 +32,8 @@ dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web-validation")
   implementation("io.vertx:vertx-web")
+  implementation("io.vertx:vertx-web-templ-pug:4.5.4")
+
   implementation("io.vertx:vertx-pg-client")
   implementation("io.vertx:vertx-lang-kotlin-coroutines")
   implementation("io.vertx:vertx-lang-kotlin")
