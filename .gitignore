@@ -212,3 +212,6 @@ replay_pid*
 
 # Editor
 .vscode
+
+# Config folder
+config/*
