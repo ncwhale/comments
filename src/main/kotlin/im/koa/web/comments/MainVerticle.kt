@@ -45,6 +45,7 @@ class MainVerticle : CoroutineVerticle() {
 
     // Deploy verticles
     logger.debug("Deploying verticles...")
+    vertx.deployVerticle(CommentsVerticle::class.java.name, DeploymentOptions().setConfig(config))
     vertx.deployVerticle(HttpVerticle::class.java.name, DeploymentOptions().setConfig(config))
 
     // Emit config change events
