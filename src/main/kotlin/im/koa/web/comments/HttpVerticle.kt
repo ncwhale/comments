@@ -70,6 +70,7 @@ class HttpVerticle : CoroutineVerticle() {
 
     // Serve webjars as lib
     router.get("/lib/*").handler(StaticHandler.create("META-INF/resources/webjars"))
+    router.get("/static/*").handler(StaticHandler.create("static/"))
 
     // Handler for all missing request routes
     router.route().handler(corsHandler).handler { context ->
