@@ -59,6 +59,7 @@ class HttpVerticle : CoroutineVerticle() {
 
       corsHandler.addOrigins(origins_list)
     } catch (e: Exception) {
+      logger.debug("Invalid CORS origins config: $e")
       logger.warn("Invalid CORS origins config, skipped")
     }
 
